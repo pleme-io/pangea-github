@@ -4,6 +4,8 @@
 require 'pangea-core'
 require 'terraform-synthesizer'
 
+module Pangea; module Resources; module Github; module Types; end; end; end; end
+
 # Github resources
 require_relative 'pangea/resources/github_actions_environment_secret/resource'
 require_relative 'pangea/resources/github_actions_environment_variable/resource'
