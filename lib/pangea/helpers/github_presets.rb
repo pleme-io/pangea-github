@@ -54,7 +54,11 @@ module Pangea
           archived: false,
           vulnerability_alerts: true,
         }
-        synth.github_repository(:"#{name}", defaults.merge(overrides))
+        # Sanitize for TF resource identifier. Keep the real name in
+        # `defaults[:name]` untouched.
+        tf_slug = name.to_s.gsub(/[^a-zA-Z0-9_]/, '_')
+        tf_slug = "r_#{tf_slug}" unless tf_slug.match?(/\A[a-zA-Z_]/)
+        synth.github_repository(:"#{tf_slug}", defaults.merge(overrides))
       end
 
       # Archive-mode repo shape: everything locked, no merges, read-only.
@@ -103,7 +107,9 @@ module Pangea
           allows_deletions:       false,
           allows_force_pushes:    false,
         }.merge(presets)
-        synth.github_branch_protection(:"#{repo_name}-#{branch}", defaults.merge(overrides))
+        tf_slug = "#{repo_name}_#{branch}".gsub(/[^a-zA-Z0-9_]/, '_')
+        tf_slug = "r_#{tf_slug}" unless tf_slug.match?(/\A[a-zA-Z_]/)
+        synth.github_branch_protection(:"#{tf_slug}", defaults.merge(overrides))
       end
 
       # ══════════════════════════════════════════════════════════════
