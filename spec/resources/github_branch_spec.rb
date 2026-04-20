@@ -61,7 +61,7 @@ RSpec.describe Pangea::Resources::GithubBranch do
     end
 
     context 'with all attributes' do
-      let(:all_attrs) { required_attrs.merge({ source_branch: 'test-value' }) }
+      let(:all_attrs) { required_attrs.merge({ etag: 'test-value', source_branch: 'test-value', source_sha: 'test-value' }) }
 
       it 'synthesizes with optional attributes' do
         synth = create_synthesizer
@@ -70,11 +70,30 @@ RSpec.describe Pangea::Resources::GithubBranch do
         result = normalize_synthesis(synth.synthesis)
 
         config = validate_resource_structure(result, 'github_branch', 'full')
+        expect(config).to have_key('etag')
         expect(config).to have_key('source_branch')
+        expect(config).to have_key('source_sha')
       end
     end
 
     context 'optional attributes' do
+      it 'includes etag when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_branch('opt', required_attrs.merge(etag: 'test-value'))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_branch', 'opt')
+        expect(config).to have_key('etag')
+      end
+
+      it 'omits etag when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_branch('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_branch', 'minimal')
+        expect(config).not_to have_key('etag')
+      end
       it 'includes source_branch when provided' do
         synth = create_synthesizer
         synth.extend(described_class)
@@ -91,6 +110,23 @@ RSpec.describe Pangea::Resources::GithubBranch do
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_branch', 'minimal')
         expect(config).not_to have_key('source_branch')
+      end
+      it 'includes source_sha when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_branch('opt', required_attrs.merge(source_sha: 'test-value'))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_branch', 'opt')
+        expect(config).to have_key('source_sha')
+      end
+
+      it 'omits source_sha when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_branch('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_branch', 'minimal')
+        expect(config).not_to have_key('source_sha')
       end
     end
 

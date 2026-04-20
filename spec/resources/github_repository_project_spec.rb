@@ -57,7 +57,7 @@ RSpec.describe Pangea::Resources::GithubRepositoryProject do
     end
 
     context 'with all attributes' do
-      let(:all_attrs) { required_attrs.merge({ body: 'test-value' }) }
+      let(:all_attrs) { required_attrs.merge({ body: 'test-value', etag: 'test-value' }) }
 
       it 'synthesizes with optional attributes' do
         synth = create_synthesizer
@@ -67,6 +67,7 @@ RSpec.describe Pangea::Resources::GithubRepositoryProject do
 
         config = validate_resource_structure(result, 'github_repository_project', 'full')
         expect(config).to have_key('body')
+        expect(config).to have_key('etag')
       end
     end
 
@@ -87,6 +88,23 @@ RSpec.describe Pangea::Resources::GithubRepositoryProject do
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_repository_project', 'minimal')
         expect(config).not_to have_key('body')
+      end
+      it 'includes etag when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository_project('opt', required_attrs.merge(etag: 'test-value'))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository_project', 'opt')
+        expect(config).to have_key('etag')
+      end
+
+      it 'omits etag when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository_project('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository_project', 'minimal')
+        expect(config).not_to have_key('etag')
       end
     end
 

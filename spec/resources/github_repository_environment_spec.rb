@@ -42,7 +42,7 @@ RSpec.describe Pangea::Resources::GithubRepositoryEnvironment do
     end
 
     context 'with all attributes' do
-      let(:all_attrs) { required_attrs.merge({ can_admins_bypass: true, deployment_branch_policy: [{ 'key1' => 'val1' }], prevent_self_review: true, reviewers: [{ 'key1' => 'val1' }], wait_timer: 3.14 }) }
+      let(:all_attrs) { required_attrs.merge({ can_admins_bypass: true, deployment_branch_policy: { 'key1' => 'val1' }, prevent_self_review: true, reviewers: [{ 'key1' => 'val1' }], wait_timer: 3.14 }) }
 
       it 'synthesizes with optional attributes' do
         synth = create_synthesizer
@@ -80,7 +80,7 @@ RSpec.describe Pangea::Resources::GithubRepositoryEnvironment do
       it 'includes deployment_branch_policy when provided' do
         synth = create_synthesizer
         synth.extend(described_class)
-        synth.github_repository_environment('opt', required_attrs.merge(deployment_branch_policy: [{ 'key1' => 'val1' }]))
+        synth.github_repository_environment('opt', required_attrs.merge(deployment_branch_policy: { 'key1' => 'val1' }))
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_repository_environment', 'opt')
         expect(config).to have_key('deployment_branch_policy')

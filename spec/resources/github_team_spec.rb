@@ -65,7 +65,7 @@ RSpec.describe Pangea::Resources::GithubTeam do
     end
 
     context 'with all attributes' do
-      let(:all_attrs) { required_attrs.merge({ create_default_maintainer: true, description: 'test-value', ldap_dn: 'test-value', notification_setting: 'test-value', parent_team_id: 'test-value', privacy: 'test-value' }) }
+      let(:all_attrs) { required_attrs.merge({ create_default_maintainer: true, description: 'test-value', ldap_dn: 'test-value', notification_setting: 'test-value', parent_team_id: 'test-value', parent_team_read_id: 'test-value', parent_team_read_slug: 'test-value', privacy: 'test-value' }) }
 
       it 'synthesizes with optional attributes' do
         synth = create_synthesizer
@@ -79,6 +79,8 @@ RSpec.describe Pangea::Resources::GithubTeam do
         expect(config).to have_key('ldap_dn')
         expect(config).to have_key('notification_setting')
         expect(config).to have_key('parent_team_id')
+        expect(config).to have_key('parent_team_read_id')
+        expect(config).to have_key('parent_team_read_slug')
         expect(config).to have_key('privacy')
       end
     end
@@ -168,6 +170,40 @@ RSpec.describe Pangea::Resources::GithubTeam do
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_team', 'minimal')
         expect(config).not_to have_key('parent_team_id')
+      end
+      it 'includes parent_team_read_id when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_team('opt', required_attrs.merge(parent_team_read_id: 'test-value'))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_team', 'opt')
+        expect(config).to have_key('parent_team_read_id')
+      end
+
+      it 'omits parent_team_read_id when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_team('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_team', 'minimal')
+        expect(config).not_to have_key('parent_team_read_id')
+      end
+      it 'includes parent_team_read_slug when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_team('opt', required_attrs.merge(parent_team_read_slug: 'test-value'))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_team', 'opt')
+        expect(config).to have_key('parent_team_read_slug')
+      end
+
+      it 'omits parent_team_read_slug when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_team('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_team', 'minimal')
+        expect(config).not_to have_key('parent_team_read_slug')
       end
       it 'includes privacy when provided' do
         synth = create_synthesizer

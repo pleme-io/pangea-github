@@ -1,0 +1,8 @@
+name: github_actions_hosted_runner
+title: Manages a github_actions_hosted_runner resource
+version: 0.1.0
+supports:
+  - platform: github
+depends:
+  - name: inspec-github
+    url: https://github.com/pleme-io/inspec-github

@@ -57,7 +57,7 @@ RSpec.describe Pangea::Resources::GithubRepositoryWebhook do
     end
 
     context 'with all attributes' do
-      let(:all_attrs) { required_attrs.merge({ active: true, configuration: [{ 'key1' => 'val1' }] }) }
+      let(:all_attrs) { required_attrs.merge({ active: true, configuration: { 'key1' => 'val1' }, etag: 'test-value' }) }
 
       it 'synthesizes with optional attributes' do
         synth = create_synthesizer
@@ -68,6 +68,7 @@ RSpec.describe Pangea::Resources::GithubRepositoryWebhook do
         config = validate_resource_structure(result, 'github_repository_webhook', 'full')
         expect(config).to have_key('active')
         expect(config).to have_key('configuration')
+        expect(config).to have_key('etag')
       end
     end
 
@@ -92,7 +93,7 @@ RSpec.describe Pangea::Resources::GithubRepositoryWebhook do
       it 'includes configuration when provided' do
         synth = create_synthesizer
         synth.extend(described_class)
-        synth.github_repository_webhook('opt', required_attrs.merge(configuration: [{ 'key1' => 'val1' }]))
+        synth.github_repository_webhook('opt', required_attrs.merge(configuration: { 'key1' => 'val1' }))
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_repository_webhook', 'opt')
         expect(config).to have_key('configuration')
@@ -105,6 +106,23 @@ RSpec.describe Pangea::Resources::GithubRepositoryWebhook do
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_repository_webhook', 'minimal')
         expect(config).not_to have_key('configuration')
+      end
+      it 'includes etag when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository_webhook('opt', required_attrs.merge(etag: 'test-value'))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository_webhook', 'opt')
+        expect(config).to have_key('etag')
+      end
+
+      it 'omits etag when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository_webhook('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository_webhook', 'minimal')
+        expect(config).not_to have_key('etag')
       end
     end
 

@@ -55,7 +55,7 @@ RSpec.describe Pangea::Resources::GithubBranchProtectionV3 do
     end
 
     context 'with all attributes' do
-      let(:all_attrs) { required_attrs.merge({ enforce_admins: true, require_conversation_resolution: true, require_signed_commits: true, required_pull_request_reviews: [{ 'key1' => 'val1' }], required_status_checks: [{ 'key1' => 'val1' }], restrictions: [{ 'key1' => 'val1' }] }) }
+      let(:all_attrs) { required_attrs.merge({ enforce_admins: true, require_conversation_resolution: true, require_signed_commits: true, required_pull_request_reviews: { 'key1' => 'val1' }, required_status_checks: { 'key1' => 'val1' }, restrictions: { 'key1' => 'val1' } }) }
 
       it 'synthesizes with optional attributes' do
         synth = create_synthesizer
@@ -128,7 +128,7 @@ RSpec.describe Pangea::Resources::GithubBranchProtectionV3 do
       it 'includes required_pull_request_reviews when provided' do
         synth = create_synthesizer
         synth.extend(described_class)
-        synth.github_branch_protection_v3('opt', required_attrs.merge(required_pull_request_reviews: [{ 'key1' => 'val1' }]))
+        synth.github_branch_protection_v3('opt', required_attrs.merge(required_pull_request_reviews: { 'key1' => 'val1' }))
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_branch_protection_v3', 'opt')
         expect(config).to have_key('required_pull_request_reviews')
@@ -145,7 +145,7 @@ RSpec.describe Pangea::Resources::GithubBranchProtectionV3 do
       it 'includes required_status_checks when provided' do
         synth = create_synthesizer
         synth.extend(described_class)
-        synth.github_branch_protection_v3('opt', required_attrs.merge(required_status_checks: [{ 'key1' => 'val1' }]))
+        synth.github_branch_protection_v3('opt', required_attrs.merge(required_status_checks: { 'key1' => 'val1' }))
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_branch_protection_v3', 'opt')
         expect(config).to have_key('required_status_checks')
@@ -162,7 +162,7 @@ RSpec.describe Pangea::Resources::GithubBranchProtectionV3 do
       it 'includes restrictions when provided' do
         synth = create_synthesizer
         synth.extend(described_class)
-        synth.github_branch_protection_v3('opt', required_attrs.merge(restrictions: [{ 'key1' => 'val1' }]))
+        synth.github_branch_protection_v3('opt', required_attrs.merge(restrictions: { 'key1' => 'val1' }))
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_branch_protection_v3', 'opt')
         expect(config).to have_key('restrictions')

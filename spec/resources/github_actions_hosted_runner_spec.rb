@@ -8,7 +8,7 @@ require 'spec_helper'
 RSpec.describe Pangea::Resources::GithubActionsHostedRunner do
   include Pangea::Testing::SynthesisTestHelpers
 
-  let(:required_attrs) { { image: [{ 'key1' => 'val1' }], name: 'test-value', runner_group_id: 3.14, size: 'test-value' } }
+  let(:required_attrs) { { image: { 'key1' => 'val1' }, name: 'test-value', runner_group_id: 3.14, size: 'test-value' } }
 
   describe ':github_actions_hosted_runner' do
     context 'with required attributes only' do
@@ -65,7 +65,7 @@ RSpec.describe Pangea::Resources::GithubActionsHostedRunner do
     end
 
     context 'with all attributes' do
-      let(:all_attrs) { required_attrs.merge({ image_gen: true, image_version: 'test-value', public_ip_enabled: true }) }
+      let(:all_attrs) { required_attrs.merge({ image_gen: true, image_version: 'test-value', maximum_runners: 3.14, public_ip_enabled: true }) }
 
       it 'synthesizes with optional attributes' do
         synth = create_synthesizer
@@ -76,6 +76,7 @@ RSpec.describe Pangea::Resources::GithubActionsHostedRunner do
         config = validate_resource_structure(result, 'github_actions_hosted_runner', 'full')
         expect(config).to have_key('image_gen')
         expect(config).to have_key('image_version')
+        expect(config).to have_key('maximum_runners')
         expect(config).to have_key('public_ip_enabled')
       end
     end
@@ -114,6 +115,23 @@ RSpec.describe Pangea::Resources::GithubActionsHostedRunner do
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_actions_hosted_runner', 'minimal')
         expect(config).not_to have_key('image_version')
+      end
+      it 'includes maximum_runners when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_actions_hosted_runner('opt', required_attrs.merge(maximum_runners: 3.14))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_actions_hosted_runner', 'opt')
+        expect(config).to have_key('maximum_runners')
+      end
+
+      it 'omits maximum_runners when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_actions_hosted_runner('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_actions_hosted_runner', 'minimal')
+        expect(config).not_to have_key('maximum_runners')
       end
       it 'includes public_ip_enabled when provided' do
         synth = create_synthesizer
@@ -167,7 +185,7 @@ RSpec.describe Pangea::Resources::GithubActionsHostedRunner do
         result = normalize_synthesis(synth.synthesis)
 
         config = validate_resource_structure(result, 'github_actions_hosted_runner', 'typed')
-        expect(config['image']).to be_a(Array)
+        expect(config['image']).to be_a(Hash)
         expect(config['name']).to be_a(String)
         expect(config['runner_group_id']).to be_a(Float)
         expect(config['size']).to be_a(String)
@@ -203,7 +221,7 @@ RSpec.describe Pangea::Resources::GithubActionsHostedRunner do
   it_behaves_like 'a generated pangea resource',
     resource_type: :github_actions_hosted_runner,
     method: :github_actions_hosted_runner,
-    required_attrs: { image: [{ 'key1' => 'val1' }], name: 'test-value', runner_group_id: 3.14, size: 'test-value' },
+    required_attrs: { image: { 'key1' => 'val1' }, name: 'test-value', runner_group_id: 3.14, size: 'test-value' },
     expected_outputs: [:id, :last_active_on, :machine_size_details, :maximum_runners, :platform, :public_ips, :status],
     sensitive_fields: [],
     immutable_fields: [],

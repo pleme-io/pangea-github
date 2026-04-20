@@ -23,6 +23,7 @@ end
 
 begin
   require 'pangea-github'
+  require 'pangea/testing'
 rescue LoadError => e
   puts "Warning: Could not load pangea-github: #{e.message}"
 end

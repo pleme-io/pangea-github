@@ -57,7 +57,7 @@ RSpec.describe Pangea::Resources::GithubTeamSettings do
     end
 
     context 'with all attributes' do
-      let(:all_attrs) { required_attrs.merge({ review_request_delegation: [{ 'key1' => 'val1' }] }) }
+      let(:all_attrs) { required_attrs.merge({ review_request_delegation: { 'key1' => 'val1' } }) }
 
       it 'synthesizes with optional attributes' do
         synth = create_synthesizer
@@ -74,7 +74,7 @@ RSpec.describe Pangea::Resources::GithubTeamSettings do
       it 'includes review_request_delegation when provided' do
         synth = create_synthesizer
         synth.extend(described_class)
-        synth.github_team_settings('opt', required_attrs.merge(review_request_delegation: [{ 'key1' => 'val1' }]))
+        synth.github_team_settings('opt', required_attrs.merge(review_request_delegation: { 'key1' => 'val1' }))
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_team_settings', 'opt')
         expect(config).to have_key('review_request_delegation')

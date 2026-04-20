@@ -42,7 +42,7 @@ RSpec.describe Pangea::Resources::GithubEnterpriseActionsPermissions do
     end
 
     context 'with all attributes' do
-      let(:all_attrs) { required_attrs.merge({ allowed_actions: 'test-value', allowed_actions_config: [{ 'key1' => 'val1' }], enabled_organizations_config: [{ 'key1' => 'val1' }] }) }
+      let(:all_attrs) { required_attrs.merge({ allowed_actions: 'test-value', allowed_actions_config: { 'key1' => 'val1' }, enabled_organizations_config: { 'key1' => 'val1' } }) }
 
       it 'synthesizes with optional attributes' do
         synth = create_synthesizer
@@ -78,7 +78,7 @@ RSpec.describe Pangea::Resources::GithubEnterpriseActionsPermissions do
       it 'includes allowed_actions_config when provided' do
         synth = create_synthesizer
         synth.extend(described_class)
-        synth.github_enterprise_actions_permissions('opt', required_attrs.merge(allowed_actions_config: [{ 'key1' => 'val1' }]))
+        synth.github_enterprise_actions_permissions('opt', required_attrs.merge(allowed_actions_config: { 'key1' => 'val1' }))
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_enterprise_actions_permissions', 'opt')
         expect(config).to have_key('allowed_actions_config')
@@ -95,7 +95,7 @@ RSpec.describe Pangea::Resources::GithubEnterpriseActionsPermissions do
       it 'includes enabled_organizations_config when provided' do
         synth = create_synthesizer
         synth.extend(described_class)
-        synth.github_enterprise_actions_permissions('opt', required_attrs.merge(enabled_organizations_config: [{ 'key1' => 'val1' }]))
+        synth.github_enterprise_actions_permissions('opt', required_attrs.merge(enabled_organizations_config: { 'key1' => 'val1' }))
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_enterprise_actions_permissions', 'opt')
         expect(config).to have_key('enabled_organizations_config')

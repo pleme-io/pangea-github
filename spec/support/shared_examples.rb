@@ -64,3 +64,28 @@ RSpec.shared_examples 'a generated pangea resource' do |resource_type:, method:,
     end
   end
 end
+
+# Type purity proof — proves ALL generated types inherit BaseAttributes,
+# no T::Ref unions, refs handled at ResourceInput serialization boundary.
+RSpec.shared_examples 'a pure typed provider' do |provider_module:, types_module:, lib_path:|
+  describe 'type purity' do
+    let(:types_files) { Dir.glob(File.join(lib_path, '**', 'types.rb')) }
+
+    it 'has NO Dry::Struct inheritance (all types use BaseAttributes)' do
+      violations = types_files.select { |f| File.read(f).include?('< Dry::Struct') }
+      expect(violations).to be_empty,
+        "#{violations.length} types still inherit Dry::Struct:\n#{violations.join("\n")}"
+    end
+
+    it 'has at least one BaseAttributes type' do
+      base_types = types_files.select { |f| File.read(f).include?('< Pangea::Resources::BaseAttributes') }
+      expect(base_types).not_to be_empty
+    end
+
+    it 'has NO T::Ref union types in generated code' do
+      violations = types_files.select { |f| File.read(f).match?(/\| T::Ref\b/) }
+      expect(violations).to be_empty,
+        "#{violations.length} types contain | T::Ref unions:\n#{violations.join("\n")}"
+    end
+  end
+end

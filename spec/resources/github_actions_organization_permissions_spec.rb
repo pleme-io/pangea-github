@@ -55,7 +55,7 @@ RSpec.describe Pangea::Resources::GithubActionsOrganizationPermissions do
     end
 
     context 'with all attributes' do
-      let(:all_attrs) { required_attrs.merge({ allowed_actions: 'test-value', allowed_actions_config: [{ 'key1' => 'val1' }], enabled_repositories_config: [{ 'key1' => 'val1' }] }) }
+      let(:all_attrs) { required_attrs.merge({ allowed_actions: 'test-value', allowed_actions_config: { 'key1' => 'val1' }, enabled_repositories_config: { 'key1' => 'val1' }, sha_pinning_required: true }) }
 
       it 'synthesizes with optional attributes' do
         synth = create_synthesizer
@@ -67,6 +67,7 @@ RSpec.describe Pangea::Resources::GithubActionsOrganizationPermissions do
         expect(config).to have_key('allowed_actions')
         expect(config).to have_key('allowed_actions_config')
         expect(config).to have_key('enabled_repositories_config')
+        expect(config).to have_key('sha_pinning_required')
       end
     end
 
@@ -91,7 +92,7 @@ RSpec.describe Pangea::Resources::GithubActionsOrganizationPermissions do
       it 'includes allowed_actions_config when provided' do
         synth = create_synthesizer
         synth.extend(described_class)
-        synth.github_actions_organization_permissions('opt', required_attrs.merge(allowed_actions_config: [{ 'key1' => 'val1' }]))
+        synth.github_actions_organization_permissions('opt', required_attrs.merge(allowed_actions_config: { 'key1' => 'val1' }))
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_actions_organization_permissions', 'opt')
         expect(config).to have_key('allowed_actions_config')
@@ -108,7 +109,7 @@ RSpec.describe Pangea::Resources::GithubActionsOrganizationPermissions do
       it 'includes enabled_repositories_config when provided' do
         synth = create_synthesizer
         synth.extend(described_class)
-        synth.github_actions_organization_permissions('opt', required_attrs.merge(enabled_repositories_config: [{ 'key1' => 'val1' }]))
+        synth.github_actions_organization_permissions('opt', required_attrs.merge(enabled_repositories_config: { 'key1' => 'val1' }))
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_actions_organization_permissions', 'opt')
         expect(config).to have_key('enabled_repositories_config')
@@ -121,6 +122,37 @@ RSpec.describe Pangea::Resources::GithubActionsOrganizationPermissions do
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_actions_organization_permissions', 'minimal')
         expect(config).not_to have_key('enabled_repositories_config')
+      end
+      it 'includes sha_pinning_required when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_actions_organization_permissions('opt', required_attrs.merge(sha_pinning_required: true))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_actions_organization_permissions', 'opt')
+        expect(config).to have_key('sha_pinning_required')
+      end
+
+      it 'omits sha_pinning_required when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_actions_organization_permissions('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_actions_organization_permissions', 'minimal')
+        expect(config).not_to have_key('sha_pinning_required')
+      end
+    end
+
+    context 'boolean fields' do
+      [true, false].each do |val|
+        it "accepts sha_pinning_required=#{val}" do
+          synth = create_synthesizer
+          synth.extend(described_class)
+          attrs = required_attrs.merge(sha_pinning_required: val)
+          synth.github_actions_organization_permissions("bool_#{val}", attrs)
+          result = normalize_synthesis(synth.synthesis)
+          config = validate_resource_structure(result, 'github_actions_organization_permissions', "bool_#{val}")
+          expect(config['sha_pinning_required']).to eq(val)
+        end
       end
     end
 
@@ -169,5 +201,5 @@ RSpec.describe Pangea::Resources::GithubActionsOrganizationPermissions do
     expected_outputs: [:id, :sha_pinning_required],
     sensitive_fields: [],
     immutable_fields: [],
-    boolean_fields: []
+    boolean_fields: [:sha_pinning_required]
 end

@@ -61,7 +61,7 @@ RSpec.describe Pangea::Resources::GithubOrganizationCustomProperties do
     end
 
     context 'with all attributes' do
-      let(:all_attrs) { required_attrs.merge({ required: true, value_type: 'test-value' }) }
+      let(:all_attrs) { required_attrs.merge({ allowed_values: ['test-value'], default_value: 'test-value', description: 'test-value', required: true, value_type: 'test-value', values_editable_by: 'test-value' }) }
 
       it 'synthesizes with optional attributes' do
         synth = create_synthesizer
@@ -70,12 +70,67 @@ RSpec.describe Pangea::Resources::GithubOrganizationCustomProperties do
         result = normalize_synthesis(synth.synthesis)
 
         config = validate_resource_structure(result, 'github_organization_custom_properties', 'full')
+        expect(config).to have_key('allowed_values')
+        expect(config).to have_key('default_value')
+        expect(config).to have_key('description')
         expect(config).to have_key('required')
         expect(config).to have_key('value_type')
+        expect(config).to have_key('values_editable_by')
       end
     end
 
     context 'optional attributes' do
+      it 'includes allowed_values when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_organization_custom_properties('opt', required_attrs.merge(allowed_values: ['test-value']))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_organization_custom_properties', 'opt')
+        expect(config).to have_key('allowed_values')
+      end
+
+      it 'omits allowed_values when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_organization_custom_properties('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_organization_custom_properties', 'minimal')
+        expect(config).not_to have_key('allowed_values')
+      end
+      it 'includes default_value when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_organization_custom_properties('opt', required_attrs.merge(default_value: 'test-value'))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_organization_custom_properties', 'opt')
+        expect(config).to have_key('default_value')
+      end
+
+      it 'omits default_value when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_organization_custom_properties('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_organization_custom_properties', 'minimal')
+        expect(config).not_to have_key('default_value')
+      end
+      it 'includes description when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_organization_custom_properties('opt', required_attrs.merge(description: 'test-value'))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_organization_custom_properties', 'opt')
+        expect(config).to have_key('description')
+      end
+
+      it 'omits description when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_organization_custom_properties('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_organization_custom_properties', 'minimal')
+        expect(config).not_to have_key('description')
+      end
       it 'includes required when provided' do
         synth = create_synthesizer
         synth.extend(described_class)
@@ -109,6 +164,23 @@ RSpec.describe Pangea::Resources::GithubOrganizationCustomProperties do
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_organization_custom_properties', 'minimal')
         expect(config).not_to have_key('value_type')
+      end
+      it 'includes values_editable_by when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_organization_custom_properties('opt', required_attrs.merge(values_editable_by: 'test-value'))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_organization_custom_properties', 'opt')
+        expect(config).to have_key('values_editable_by')
+      end
+
+      it 'omits values_editable_by when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_organization_custom_properties('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_organization_custom_properties', 'minimal')
+        expect(config).not_to have_key('values_editable_by')
       end
     end
 

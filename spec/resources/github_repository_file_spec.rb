@@ -67,7 +67,7 @@ RSpec.describe Pangea::Resources::GithubRepositoryFile do
     end
 
     context 'with all attributes' do
-      let(:all_attrs) { required_attrs.merge({ autocreate_branch: true, autocreate_branch_source_branch: 'test-value', commit_author: 'test-value', commit_email: 'test-value', overwrite_on_create: true }) }
+      let(:all_attrs) { required_attrs.merge({ autocreate_branch: true, autocreate_branch_source_branch: 'test-value', autocreate_branch_source_sha: 'test-value', branch: 'test-value', commit_author: 'test-value', commit_email: 'test-value', commit_message: 'test-value', overwrite_on_create: true }) }
 
       it 'synthesizes with optional attributes' do
         synth = create_synthesizer
@@ -78,8 +78,11 @@ RSpec.describe Pangea::Resources::GithubRepositoryFile do
         config = validate_resource_structure(result, 'github_repository_file', 'full')
         expect(config).to have_key('autocreate_branch')
         expect(config).to have_key('autocreate_branch_source_branch')
+        expect(config).to have_key('autocreate_branch_source_sha')
+        expect(config).to have_key('branch')
         expect(config).to have_key('commit_author')
         expect(config).to have_key('commit_email')
+        expect(config).to have_key('commit_message')
         expect(config).to have_key('overwrite_on_create')
       end
     end
@@ -119,6 +122,40 @@ RSpec.describe Pangea::Resources::GithubRepositoryFile do
         config = validate_resource_structure(result, 'github_repository_file', 'minimal')
         expect(config).not_to have_key('autocreate_branch_source_branch')
       end
+      it 'includes autocreate_branch_source_sha when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository_file('opt', required_attrs.merge(autocreate_branch_source_sha: 'test-value'))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository_file', 'opt')
+        expect(config).to have_key('autocreate_branch_source_sha')
+      end
+
+      it 'omits autocreate_branch_source_sha when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository_file('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository_file', 'minimal')
+        expect(config).not_to have_key('autocreate_branch_source_sha')
+      end
+      it 'includes branch when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository_file('opt', required_attrs.merge(branch: 'test-value'))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository_file', 'opt')
+        expect(config).to have_key('branch')
+      end
+
+      it 'omits branch when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository_file('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository_file', 'minimal')
+        expect(config).not_to have_key('branch')
+      end
       it 'includes commit_author when provided' do
         synth = create_synthesizer
         synth.extend(described_class)
@@ -152,6 +189,23 @@ RSpec.describe Pangea::Resources::GithubRepositoryFile do
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_repository_file', 'minimal')
         expect(config).not_to have_key('commit_email')
+      end
+      it 'includes commit_message when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository_file('opt', required_attrs.merge(commit_message: 'test-value'))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository_file', 'opt')
+        expect(config).to have_key('commit_message')
+      end
+
+      it 'omits commit_message when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository_file('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository_file', 'minimal')
+        expect(config).not_to have_key('commit_message')
       end
       it 'includes overwrite_on_create when provided' do
         synth = create_synthesizer

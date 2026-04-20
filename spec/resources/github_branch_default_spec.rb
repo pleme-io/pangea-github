@@ -55,7 +55,7 @@ RSpec.describe Pangea::Resources::GithubBranchDefault do
     end
 
     context 'with all attributes' do
-      let(:all_attrs) { required_attrs.merge({ rename: true }) }
+      let(:all_attrs) { required_attrs.merge({ etag: 'test-value', rename: true }) }
 
       it 'synthesizes with optional attributes' do
         synth = create_synthesizer
@@ -64,11 +64,29 @@ RSpec.describe Pangea::Resources::GithubBranchDefault do
         result = normalize_synthesis(synth.synthesis)
 
         config = validate_resource_structure(result, 'github_branch_default', 'full')
+        expect(config).to have_key('etag')
         expect(config).to have_key('rename')
       end
     end
 
     context 'optional attributes' do
+      it 'includes etag when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_branch_default('opt', required_attrs.merge(etag: 'test-value'))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_branch_default', 'opt')
+        expect(config).to have_key('etag')
+      end
+
+      it 'omits etag when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_branch_default('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_branch_default', 'minimal')
+        expect(config).not_to have_key('etag')
+      end
       it 'includes rename when provided' do
         synth = create_synthesizer
         synth.extend(described_class)

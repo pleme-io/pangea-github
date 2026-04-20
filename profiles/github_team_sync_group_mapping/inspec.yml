@@ -1,0 +1,8 @@
+name: github_team_sync_group_mapping
+title: Manages a github_team_sync_group_mapping resource
+version: 0.1.0
+supports:
+  - platform: github
+depends:
+  - name: inspec-github
+    url: https://github.com/pleme-io/inspec-github

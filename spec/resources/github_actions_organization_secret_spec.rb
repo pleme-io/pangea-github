@@ -61,7 +61,7 @@ RSpec.describe Pangea::Resources::GithubActionsOrganizationSecret do
     end
 
     context 'with all attributes' do
-      let(:all_attrs) { required_attrs.merge({ destroy_on_drift: true, encrypted_value: 'test-value', plaintext_value: 'test-value', selected_repository_ids: [3.14] }) }
+      let(:all_attrs) { required_attrs.merge({ destroy_on_drift: true, encrypted_value: 'test-value', key_id: 'test-value', plaintext_value: 'test-value', selected_repository_ids: [3.14] }) }
 
       it 'synthesizes with optional attributes' do
         synth = create_synthesizer
@@ -72,6 +72,7 @@ RSpec.describe Pangea::Resources::GithubActionsOrganizationSecret do
         config = validate_resource_structure(result, 'github_actions_organization_secret', 'full')
         expect(config).to have_key('destroy_on_drift')
         expect(config).to have_key('encrypted_value')
+        expect(config).to have_key('key_id')
         expect(config).to have_key('plaintext_value')
         expect(config).to have_key('selected_repository_ids')
       end
@@ -111,6 +112,23 @@ RSpec.describe Pangea::Resources::GithubActionsOrganizationSecret do
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_actions_organization_secret', 'minimal')
         expect(config).not_to have_key('encrypted_value')
+      end
+      it 'includes key_id when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_actions_organization_secret('opt', required_attrs.merge(key_id: 'test-value'))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_actions_organization_secret', 'opt')
+        expect(config).to have_key('key_id')
+      end
+
+      it 'omits key_id when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_actions_organization_secret('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_actions_organization_secret', 'minimal')
+        expect(config).not_to have_key('key_id')
       end
       it 'includes plaintext_value when provided' do
         synth = create_synthesizer

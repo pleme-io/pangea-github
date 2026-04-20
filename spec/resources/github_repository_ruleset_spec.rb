@@ -8,7 +8,7 @@ require 'spec_helper'
 RSpec.describe Pangea::Resources::GithubRepositoryRuleset do
   include Pangea::Testing::SynthesisTestHelpers
 
-  let(:required_attrs) { { enforcement: 'test-value', name: 'test-value', repository: 'test-value', rules: [{ 'key1' => 'val1' }], target: 'test-value' } }
+  let(:required_attrs) { { enforcement: 'test-value', name: 'test-value', repository: 'test-value', rules: { 'key1' => 'val1' }, target: 'test-value' } }
 
   describe ':github_repository_ruleset' do
     context 'with required attributes only' do
@@ -59,7 +59,7 @@ RSpec.describe Pangea::Resources::GithubRepositoryRuleset do
     end
 
     context 'with all attributes' do
-      let(:all_attrs) { required_attrs.merge({ bypass_actors: [{ 'key1' => 'val1' }], conditions: [{ 'key1' => 'val1' }] }) }
+      let(:all_attrs) { required_attrs.merge({ bypass_actors: [{ 'key1' => 'val1' }], conditions: { 'key1' => 'val1' } }) }
 
       it 'synthesizes with optional attributes' do
         synth = create_synthesizer
@@ -94,7 +94,7 @@ RSpec.describe Pangea::Resources::GithubRepositoryRuleset do
       it 'includes conditions when provided' do
         synth = create_synthesizer
         synth.extend(described_class)
-        synth.github_repository_ruleset('opt', required_attrs.merge(conditions: [{ 'key1' => 'val1' }]))
+        synth.github_repository_ruleset('opt', required_attrs.merge(conditions: { 'key1' => 'val1' }))
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_repository_ruleset', 'opt')
         expect(config).to have_key('conditions')
@@ -121,7 +121,7 @@ RSpec.describe Pangea::Resources::GithubRepositoryRuleset do
         expect(config['enforcement']).to be_a(String)
         expect(config['name']).to be_a(String)
         expect(config['repository']).to be_a(String)
-        expect(config['rules']).to be_a(Array)
+        expect(config['rules']).to be_a(Hash)
         expect(config['target']).to be_a(String)
       end
     end
@@ -155,7 +155,7 @@ RSpec.describe Pangea::Resources::GithubRepositoryRuleset do
   it_behaves_like 'a generated pangea resource',
     resource_type: :github_repository_ruleset,
     method: :github_repository_ruleset,
-    required_attrs: { enforcement: 'test-value', name: 'test-value', repository: 'test-value', rules: [{ 'key1' => 'val1' }], target: 'test-value' },
+    required_attrs: { enforcement: 'test-value', name: 'test-value', repository: 'test-value', rules: { 'key1' => 'val1' }, target: 'test-value' },
     expected_outputs: [:id, :etag, :node_id, :ruleset_id],
     sensitive_fields: [],
     immutable_fields: [],

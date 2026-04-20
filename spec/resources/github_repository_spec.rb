@@ -91,7 +91,7 @@ RSpec.describe Pangea::Resources::GithubRepository do
     end
 
     context 'with all attributes' do
-      let(:all_attrs) { required_attrs.merge({ allow_auto_merge: true, allow_merge_commit: true, allow_rebase_merge: true, allow_squash_merge: true, allow_update_branch: true, archive_on_destroy: true, archived: true, auto_init: true, delete_branch_on_merge: true, description: 'test-value', gitignore_template: 'test-value', has_discussions: true, has_downloads: true, has_issues: true, has_projects: true, has_wiki: true, homepage_url: 'test-value', ignore_vulnerability_alerts_during_read: true, is_template: true, license_template: 'test-value', merge_commit_message: 'test-value', merge_commit_title: 'test-value', pages: [{ 'key1' => 'val1' }], security_and_analysis: [{ 'key1' => 'val1' }], squash_merge_commit_message: 'test-value', squash_merge_commit_title: 'test-value', template: [{ 'key1' => 'val1' }], web_commit_signoff_required: true }) }
+      let(:all_attrs) { required_attrs.merge({ allow_auto_merge: true, allow_forking: true, allow_merge_commit: true, allow_rebase_merge: true, allow_squash_merge: true, allow_update_branch: true, archive_on_destroy: true, archived: true, auto_init: true, default_branch: 'test-value', delete_branch_on_merge: true, description: 'test-value', etag: 'test-value', fork: 'test-value', gitignore_template: 'test-value', has_discussions: true, has_downloads: true, has_issues: true, has_projects: true, has_wiki: true, homepage_url: 'test-value', ignore_vulnerability_alerts_during_read: true, is_template: true, license_template: 'test-value', merge_commit_message: 'test-value', merge_commit_title: 'test-value', pages: { 'key1' => 'val1' }, private: true, security_and_analysis: { 'key1' => 'val1' }, source_owner: 'test-value', source_repo: 'test-value', squash_merge_commit_message: 'test-value', squash_merge_commit_title: 'test-value', template: { 'key1' => 'val1' }, topics: ['test-value'], visibility: 'test-value', vulnerability_alerts: true, web_commit_signoff_required: true }) }
 
       it 'synthesizes with optional attributes' do
         synth = create_synthesizer
@@ -101,6 +101,7 @@ RSpec.describe Pangea::Resources::GithubRepository do
 
         config = validate_resource_structure(result, 'github_repository', 'full')
         expect(config).to have_key('allow_auto_merge')
+        expect(config).to have_key('allow_forking')
         expect(config).to have_key('allow_merge_commit')
         expect(config).to have_key('allow_rebase_merge')
         expect(config).to have_key('allow_squash_merge')
@@ -108,8 +109,11 @@ RSpec.describe Pangea::Resources::GithubRepository do
         expect(config).to have_key('archive_on_destroy')
         expect(config).to have_key('archived')
         expect(config).to have_key('auto_init')
+        expect(config).to have_key('default_branch')
         expect(config).to have_key('delete_branch_on_merge')
         expect(config).to have_key('description')
+        expect(config).to have_key('etag')
+        expect(config).to have_key('fork')
         expect(config).to have_key('gitignore_template')
         expect(config).to have_key('has_discussions')
         expect(config).to have_key('has_downloads')
@@ -123,10 +127,16 @@ RSpec.describe Pangea::Resources::GithubRepository do
         expect(config).to have_key('merge_commit_message')
         expect(config).to have_key('merge_commit_title')
         expect(config).to have_key('pages')
+        expect(config).to have_key('private')
         expect(config).to have_key('security_and_analysis')
+        expect(config).to have_key('source_owner')
+        expect(config).to have_key('source_repo')
         expect(config).to have_key('squash_merge_commit_message')
         expect(config).to have_key('squash_merge_commit_title')
         expect(config).to have_key('template')
+        expect(config).to have_key('topics')
+        expect(config).to have_key('visibility')
+        expect(config).to have_key('vulnerability_alerts')
         expect(config).to have_key('web_commit_signoff_required')
       end
     end
@@ -148,6 +158,23 @@ RSpec.describe Pangea::Resources::GithubRepository do
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_repository', 'minimal')
         expect(config).not_to have_key('allow_auto_merge')
+      end
+      it 'includes allow_forking when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository('opt', required_attrs.merge(allow_forking: true))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository', 'opt')
+        expect(config).to have_key('allow_forking')
+      end
+
+      it 'omits allow_forking when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository', 'minimal')
+        expect(config).not_to have_key('allow_forking')
       end
       it 'includes allow_merge_commit when provided' do
         synth = create_synthesizer
@@ -268,6 +295,23 @@ RSpec.describe Pangea::Resources::GithubRepository do
         config = validate_resource_structure(result, 'github_repository', 'minimal')
         expect(config).not_to have_key('auto_init')
       end
+      it 'includes default_branch when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository('opt', required_attrs.merge(default_branch: 'test-value'))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository', 'opt')
+        expect(config).to have_key('default_branch')
+      end
+
+      it 'omits default_branch when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository', 'minimal')
+        expect(config).not_to have_key('default_branch')
+      end
       it 'includes delete_branch_on_merge when provided' do
         synth = create_synthesizer
         synth.extend(described_class)
@@ -301,6 +345,40 @@ RSpec.describe Pangea::Resources::GithubRepository do
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_repository', 'minimal')
         expect(config).not_to have_key('description')
+      end
+      it 'includes etag when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository('opt', required_attrs.merge(etag: 'test-value'))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository', 'opt')
+        expect(config).to have_key('etag')
+      end
+
+      it 'omits etag when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository', 'minimal')
+        expect(config).not_to have_key('etag')
+      end
+      it 'includes fork when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository('opt', required_attrs.merge(fork: 'test-value'))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository', 'opt')
+        expect(config).to have_key('fork')
+      end
+
+      it 'omits fork when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository', 'minimal')
+        expect(config).not_to have_key('fork')
       end
       it 'includes gitignore_template when provided' do
         synth = create_synthesizer
@@ -509,7 +587,7 @@ RSpec.describe Pangea::Resources::GithubRepository do
       it 'includes pages when provided' do
         synth = create_synthesizer
         synth.extend(described_class)
-        synth.github_repository('opt', required_attrs.merge(pages: [{ 'key1' => 'val1' }]))
+        synth.github_repository('opt', required_attrs.merge(pages: { 'key1' => 'val1' }))
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_repository', 'opt')
         expect(config).to have_key('pages')
@@ -523,10 +601,27 @@ RSpec.describe Pangea::Resources::GithubRepository do
         config = validate_resource_structure(result, 'github_repository', 'minimal')
         expect(config).not_to have_key('pages')
       end
+      it 'includes private when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository('opt', required_attrs.merge(private: true))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository', 'opt')
+        expect(config).to have_key('private')
+      end
+
+      it 'omits private when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository', 'minimal')
+        expect(config).not_to have_key('private')
+      end
       it 'includes security_and_analysis when provided' do
         synth = create_synthesizer
         synth.extend(described_class)
-        synth.github_repository('opt', required_attrs.merge(security_and_analysis: [{ 'key1' => 'val1' }]))
+        synth.github_repository('opt', required_attrs.merge(security_and_analysis: { 'key1' => 'val1' }))
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_repository', 'opt')
         expect(config).to have_key('security_and_analysis')
@@ -539,6 +634,40 @@ RSpec.describe Pangea::Resources::GithubRepository do
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_repository', 'minimal')
         expect(config).not_to have_key('security_and_analysis')
+      end
+      it 'includes source_owner when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository('opt', required_attrs.merge(source_owner: 'test-value'))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository', 'opt')
+        expect(config).to have_key('source_owner')
+      end
+
+      it 'omits source_owner when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository', 'minimal')
+        expect(config).not_to have_key('source_owner')
+      end
+      it 'includes source_repo when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository('opt', required_attrs.merge(source_repo: 'test-value'))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository', 'opt')
+        expect(config).to have_key('source_repo')
+      end
+
+      it 'omits source_repo when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository', 'minimal')
+        expect(config).not_to have_key('source_repo')
       end
       it 'includes squash_merge_commit_message when provided' do
         synth = create_synthesizer
@@ -577,7 +706,7 @@ RSpec.describe Pangea::Resources::GithubRepository do
       it 'includes template when provided' do
         synth = create_synthesizer
         synth.extend(described_class)
-        synth.github_repository('opt', required_attrs.merge(template: [{ 'key1' => 'val1' }]))
+        synth.github_repository('opt', required_attrs.merge(template: { 'key1' => 'val1' }))
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_repository', 'opt')
         expect(config).to have_key('template')
@@ -590,6 +719,57 @@ RSpec.describe Pangea::Resources::GithubRepository do
         result = normalize_synthesis(synth.synthesis)
         config = validate_resource_structure(result, 'github_repository', 'minimal')
         expect(config).not_to have_key('template')
+      end
+      it 'includes topics when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository('opt', required_attrs.merge(topics: ['test-value']))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository', 'opt')
+        expect(config).to have_key('topics')
+      end
+
+      it 'omits topics when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository', 'minimal')
+        expect(config).not_to have_key('topics')
+      end
+      it 'includes visibility when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository('opt', required_attrs.merge(visibility: 'test-value'))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository', 'opt')
+        expect(config).to have_key('visibility')
+      end
+
+      it 'omits visibility when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository', 'minimal')
+        expect(config).not_to have_key('visibility')
+      end
+      it 'includes vulnerability_alerts when provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository('opt', required_attrs.merge(vulnerability_alerts: true))
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository', 'opt')
+        expect(config).to have_key('vulnerability_alerts')
+      end
+
+      it 'omits vulnerability_alerts when not provided' do
+        synth = create_synthesizer
+        synth.extend(described_class)
+        synth.github_repository('minimal', required_attrs)
+        result = normalize_synthesis(synth.synthesis)
+        config = validate_resource_structure(result, 'github_repository', 'minimal')
+        expect(config).not_to have_key('vulnerability_alerts')
       end
       it 'includes web_commit_signoff_required when provided' do
         synth = create_synthesizer
@@ -620,6 +800,17 @@ RSpec.describe Pangea::Resources::GithubRepository do
           result = normalize_synthesis(synth.synthesis)
           config = validate_resource_structure(result, 'github_repository', "bool_#{val}")
           expect(config['allow_auto_merge']).to eq(val)
+        end
+      end
+      [true, false].each do |val|
+        it "accepts allow_forking=#{val}" do
+          synth = create_synthesizer
+          synth.extend(described_class)
+          attrs = required_attrs.merge(allow_forking: val)
+          synth.github_repository("bool_#{val}", attrs)
+          result = normalize_synthesis(synth.synthesis)
+          config = validate_resource_structure(result, 'github_repository', "bool_#{val}")
+          expect(config['allow_forking']).to eq(val)
         end
       end
       [true, false].each do |val|
@@ -788,6 +979,28 @@ RSpec.describe Pangea::Resources::GithubRepository do
         end
       end
       [true, false].each do |val|
+        it "accepts private=#{val}" do
+          synth = create_synthesizer
+          synth.extend(described_class)
+          attrs = required_attrs.merge(private: val)
+          synth.github_repository("bool_#{val}", attrs)
+          result = normalize_synthesis(synth.synthesis)
+          config = validate_resource_structure(result, 'github_repository', "bool_#{val}")
+          expect(config['private']).to eq(val)
+        end
+      end
+      [true, false].each do |val|
+        it "accepts vulnerability_alerts=#{val}" do
+          synth = create_synthesizer
+          synth.extend(described_class)
+          attrs = required_attrs.merge(vulnerability_alerts: val)
+          synth.github_repository("bool_#{val}", attrs)
+          result = normalize_synthesis(synth.synthesis)
+          config = validate_resource_structure(result, 'github_repository', "bool_#{val}")
+          expect(config['vulnerability_alerts']).to eq(val)
+        end
+      end
+      [true, false].each do |val|
         it "accepts web_commit_signoff_required=#{val}" do
           synth = create_synthesizer
           synth.extend(described_class)
@@ -845,5 +1058,5 @@ RSpec.describe Pangea::Resources::GithubRepository do
     expected_outputs: [:id, :allow_forking, :default_branch, :etag, :fork, :full_name, :git_clone_url, :html_url, :http_clone_url, :node_id, :primary_language, :private, :repo_id, :source_owner, :source_repo, :ssh_clone_url, :svn_url, :topics, :visibility, :vulnerability_alerts],
     sensitive_fields: [],
     immutable_fields: [],
-    boolean_fields: [:allow_auto_merge, :allow_merge_commit, :allow_rebase_merge, :allow_squash_merge, :allow_update_branch, :archive_on_destroy, :archived, :auto_init, :delete_branch_on_merge, :has_discussions, :has_downloads, :has_issues, :has_projects, :has_wiki, :ignore_vulnerability_alerts_during_read, :is_template, :web_commit_signoff_required]
+    boolean_fields: [:allow_auto_merge, :allow_forking, :allow_merge_commit, :allow_rebase_merge, :allow_squash_merge, :allow_update_branch, :archive_on_destroy, :archived, :auto_init, :delete_branch_on_merge, :has_discussions, :has_downloads, :has_issues, :has_projects, :has_wiki, :ignore_vulnerability_alerts_during_read, :is_template, :private, :vulnerability_alerts, :web_commit_signoff_required]
 end
