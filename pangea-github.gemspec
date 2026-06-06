@@ -21,7 +21,10 @@ Gem::Specification.new do |spec|
   end
 
   spec.add_dependency "pangea-core", "~> 0.2"
-  spec.add_dependency "terraform-synthesizer", "~> 0.0.28"
+  # >= (not ~>) so the import-block primitive (top-level config-driven
+  # `import { to:, id: }`, added in the 0.1.x line) is consumable. Matches
+  # pangea-core's open-upper-bound constraint.
+  spec.add_dependency "terraform-synthesizer", ">= 0.0.28"
   spec.add_dependency "dry-types", "~> 1.7"
   spec.add_dependency "dry-struct", "~> 1.6"
 
