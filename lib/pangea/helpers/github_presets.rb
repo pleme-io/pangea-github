@@ -208,13 +208,15 @@ module Pangea
       # ══════════════════════════════════════════════════════════════
 
       # Bulk emit repo-scope secrets. `entries` is Array<{name:, plaintext_ref:}>.
-      def self.repo_actions_secrets(synth, repo_name:, entries: [])
+      def self.repo_actions_secrets(synth, repo_name:, repo_ref: nil, entries: [])
         _ensure_extended(synth)
         entries.map do |s|
           synth.github_actions_secret(
             :"#{repo_name}-#{s[:name].to_s.downcase}",
             {
-              repository:      repo_name,
+              # Typed reference (not literal) → secret→repo edge in magma's
+              # apply-DAG. repo_ref optional for rollout safety; see standard_labels_for.
+              repository:      (repo_ref ? repo_ref.ref(:name) : repo_name),
               secret_name:     s[:name],
               plaintext_value: s[:plaintext_ref],
             },
@@ -223,13 +225,15 @@ module Pangea
       end
 
       # Bulk emit repo-scope variables. `entries` is Array<{name:, value:}>.
-      def self.repo_actions_variables(synth, repo_name:, entries: [])
+      def self.repo_actions_variables(synth, repo_name:, repo_ref: nil, entries: [])
         _ensure_extended(synth)
         entries.map do |v|
           synth.github_actions_variable(
             :"#{repo_name}-#{v[:name].to_s.downcase}",
             {
-              repository:    repo_name,
+              # Typed reference (not literal) → variable→repo edge in magma's
+              # apply-DAG. repo_ref optional for rollout safety; see standard_labels_for.
+              repository:    (repo_ref ? repo_ref.ref(:name) : repo_name),
               variable_name: v[:name],
               value:         v[:value].to_s,
             },
@@ -253,13 +257,22 @@ module Pangea
         { name: 'dependencies',  color: '0366d6', description: 'Pull requests that update a dependency' },
       ].freeze
 
-      def self.standard_labels_for(synth, repo_name:, labels: STANDARD_LABELS)
+      # repo_ref is OPTIONAL purely for rollout safety: this gem is baked into the
+      # pangea-operator image, so a gem upgrade can land BEFORE the cloned call
+      # site threads repo_ref. Old callers fall back to the literal (prior
+      # behavior, no break); the pangea-architectures rspec apply-DAG-edge
+      # invariant is the real enforcer — every co-created-repo child MUST pass
+      # repo_ref so the rendered config carries a ${github_repository.X.name}
+      # reference. That reference is the dependency edge magma's apply-DAG orders
+      # on; a bare literal carries no ${...} token → no edge → the label sorts
+      # before the repo in one Kahn wave → POST /repos/<org>/<repo>/labels 404.
+      def self.standard_labels_for(synth, repo_name:, repo_ref: nil, labels: STANDARD_LABELS)
         _ensure_extended(synth)
         labels.map do |l|
           synth.github_issue_label(
             :"#{repo_name}-label-#{l[:name].tr(' ', '-')}",
             {
-              repository:  repo_name,
+              repository:  (repo_ref ? repo_ref.ref(:name) : repo_name),
               name:        l[:name],
               color:       l[:color],
               description: l[:description],

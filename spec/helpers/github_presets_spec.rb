@@ -124,8 +124,9 @@ RSpec.describe Pangea::Helpers::Github do
 
   describe '.repo_actions_secrets' do
     it 'bulk-emits github_actions_secret resources' do
+      repo = described_class.standard_repo(synth, name: 'proj', description: 'x')
       described_class.repo_actions_secrets(
-        synth, repo_name: 'proj',
+        synth, repo_ref: repo, repo_name: 'proj',
         entries: [
           { name: 'ALPHA', plaintext_ref: '${a}' },
           { name: 'BETA',  plaintext_ref: '${b}' },
@@ -134,6 +135,9 @@ RSpec.describe Pangea::Helpers::Github do
       result = normalize_synthesis(synth.synthesis)
       secrets = result.dig('resource', 'github_actions_secret') || {}
       expect(secrets.keys).to contain_exactly('proj-alpha', 'proj-beta')
+      # The repository field MUST be a typed reference (edge for magma's
+      # apply-DAG), never a bare literal — see standard_labels_for.
+      expect(secrets['proj-alpha']['repository']).to match(/\A\$\{github_repository\./)
     end
   end
 
